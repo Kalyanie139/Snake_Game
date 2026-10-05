@@ -1,6 +1,7 @@
 package sgame;
 
 import javax.swing.ImageIcon;
+import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.Timer;
 import java.awt.*; //Since colour Class is in this package
@@ -34,6 +35,9 @@ public class Board extends JPanel implements ActionListener {
     private int dots;
     private Timer timer;
 
+    // Restart button
+    private JButton restartButton;
+
     // Variables for movement
     private boolean left_direction = false;
     private boolean right_direction = true;// Bydefault we are eeping right direction
@@ -48,7 +52,21 @@ public class Board extends JPanel implements ActionListener {
         // Immediately game shuru hone par frame focus pe lane ke liye
         setFocusable(true);
 
+        // Using null layout so that we can position restart button manually
+        setLayout(null);
+
         loadImages();
+
+        // Creating Restart Button
+        restartButton = new JButton("RESTART GAME");
+        restartButton.setSize(160, 40);
+        restartButton.setVisible(false);
+
+        // When button is clicked, restartGame() function will be called
+        restartButton.addActionListener(e -> restartGame());
+
+        add(restartButton);
+
         initGame();
     }
 
@@ -68,18 +86,48 @@ public class Board extends JPanel implements ActionListener {
     // Function to initialize game
     public void initGame() {
         dots = 3;
+        inGame = true;
+
+        // Resetting direction when game starts/restarts
+        left_direction = false;
+        right_direction = true;
+        up_direction = false;
+        down_direction = false;
+
         // This loop insures where these dots will be placed
         for (int i = 0; i < dots; i++) {
             y[i] = 100;
             x[i] = 100 - i * DOT_SIZE; // Multiplying dotsize with x coodinate to ensure different x cordinate in
                                        // allignment everytime
         }
+
         // Since when game starts at that time we also have to display apple we will
         // write function to display that apple
         LocateApple();
+
         timer = new Timer(140, this);
         timer.start();
 
+        // Hide restart button while game is running
+        restartButton.setVisible(false);
+
+        // Give focus back to Board so arrow keys work
+        requestFocusInWindow();
+    }
+
+    // Function to restart game
+    public void restartGame() {
+
+        // Stop old timer before creating a new one
+        if (timer != null) {
+            timer.stop();
+        }
+
+        // Initialize everything again
+        initGame();
+
+        // Refresh the frame
+        repaint();
     }
 
     // Actual code for Locate apple
@@ -142,6 +190,13 @@ public class Board extends JPanel implements ActionListener {
         int y = getHeight() / 2;
         // Finally message ko calculated position par draw kar rahe hai
         g.drawString(msg, x, y);
+
+        // Position restart button below GAME OVER text
+        int buttonX = (getWidth() - restartButton.getWidth()) / 2;
+        int buttonY = y + 30;
+
+        restartButton.setLocation(buttonX, buttonY);
+        restartButton.setVisible(true);
     }
 
     // Code for move function
